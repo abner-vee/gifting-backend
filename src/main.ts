@@ -1,0 +1,39 @@
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    })
+  );
+  app.enableCors({
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Allow cookies
+  });
+  const config = new DocumentBuilder()
+    .setTitle('Gifting Service')
+    .setDescription('a service that helps creating and managing giftings')
+    .setVersion('1.0')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger-ui.html', app, document);
+  const port = configService.get<number>('PORT', 5000);
+  await app.listen(port);
+  return port;
+}
+bootstrap()
+  .then((port) => {
+    console.log(`Server is running on port ${port}`);
+  })
+  .catch((error) => {
+    console.error('Error during bootstrap:', error);
+  });
