@@ -22,11 +22,12 @@ async function bootstrap() {
   });
   const config = new DocumentBuilder()
     .setTitle('Gifting Service')
-    .setDescription('a service that helps creating and managing giftings')
+    .setDescription('A service that helps create and manage gifting')
     .setVersion('1.0')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger-ui.html', app, document);
+  SwaggerModule.setup('api/docs', app, document);
   const port = configService.get<number>('PORT', 5000);
   await app.listen(port);
   return port;
